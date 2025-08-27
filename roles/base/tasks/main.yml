@@ -1,0 +1,62 @@
+---
+- name: Gather minimal facts
+  setup:
+    gather_subset: min
+
+- name: Ensure base packages
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - vim
+      - git
+      - python3-apt
+      - unattended-upgrades
+      - fail2ban
+    state: present
+    update_cache: true 
+  become: true
+
+- name: Set timezone (America/Lima)
+  community.general.timezone:
+    name: America/Lima
+  become: true
+
+- name: SSH hardening - disable root/password auth
+  become: true
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    create: false
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backrefs: yes
+  loop:
+    - { regexp: '^(#\s*)?PermitRootLogin\s+.*',          line: 'PermitRootLogin no' }
+    - { regexp: '^(#\s*)?PasswordAuthentication\s+.*',   line: 'PasswordAuthentication no' }
+    - { regexp: '^(#\s*)?KbdInteractiveAuthentication.*', line: 'KbdInteractiveAuthentication no' }
+    - { regexp: '^(#\s*)?ChallengeResponseAuthentication.*', line: 'ChallengeResponseAuthentication no' }
+    - { regexp: '^(#\s*)?PubkeyAuthentication\s+.*',     line: 'PubkeyAuthentication yes' }
+    - { regexp: '^(#\s*)?UsePAM\s+.*',                   line: 'UsePAM yes' }
+  notify: Restart sshd
+
+# OPTIONAL: enable UFW safely (only after key auth works!)
+- name: Allow SSH before enabling UFW
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+  become: true
+
+- name: Enable UFW (non-interrupting)
+  community.general.ufw:
+    state: enabled
+    logging: 'on'
+  become: true
+
+- name: Ensure unattended upgrades is active
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  become: true
