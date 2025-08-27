@@ -1,0 +1,4 @@
+{
+    "python.defaultInterpreterPath": "${env:HOME}/miniconda3/envs/ans118/bin/python",
+    "ansible.python.interpreterPath": "${env:HOME}/miniconda3/envs/ans118/bin/python",
+}
