@@ -1,0 +1,73 @@
+---
+- name: Install Powerline via apt
+  when: powerline_install_method == 'apt'
+  become: true
+  ansible.builtin.apt:
+    name:
+      - powerline
+      - powerline-gitstatus
+      - "{{ powerline_fonts_pkg }}"
+    state: present
+    update_cache: true
+
+- name: Install Powerline via pipx (per-user)
+  when: powerline_install_method == 'pipx'
+  become: true
+  ansible.builtin.apt:
+    name: [pipx, "{{ powerline_fonts_pkg }}"]
+    state: present
+    update_cache: true
+
+- name: Ensure pipx apps are available (per-user install)
+  when: powerline_install_method == 'pipx'
+  become: false
+  ansible.builtin.shell: "pipx ensurepath"
+  args: { executable: /bin/bash }
+  changed_when: false
+
+- name: Install powerline-status with pipx for each user
+  when: powerline_install_method == 'pipx'
+  become: false
+  ansible.builtin.command: "pipx install powerline-status"
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }
+  vars:
+    ansible_become: false
+  environment:
+    PIPX_HOME: "/home/{{ u }}/.local/pipx"
+    PIPX_BIN_DIR: "/home/{{ u }}/.local/bin"
+    XDG_CACHE_HOME: "/home/{{ u }}/.cache"
+  become_user: "{{ u }}"
+
+- name: Render shell bindings (bash)
+  when: powerline_enable_bash
+  become: false
+  ansible.builtin.blockinfile:
+    path: "/home/{{ u }}/.bashrc"
+    marker: "# {mark} ANSIBLE POWERLINE"
+    create: true
+    block: "{{ lookup('template', 'powerline.bash.j2') }}"
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }
+
+- name: Render shell bindings (zsh)
+  when: powerline_enable_zsh
+  become: false
+  ansible.builtin.blockinfile:
+    path: "/home/{{ u }}/.zshrc"
+    marker: "# {mark} ANSIBLE POWERLINE"
+    create: true
+    block: "{{ lookup('template', 'powerline.zsh.j2') }}"
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }
+
+- name: Render tmux config snippet
+  when: powerline_enable_tmux
+  become: false
+  ansible.builtin.blockinfile:
+    path: "/home/{{ u }}/.tmux.conf"
+    marker: "# {mark} ANSIBLE POWERLINE"
+    create: true
+    block: "{{ lookup('template', 'powerline.tmux.j2') }}"
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }

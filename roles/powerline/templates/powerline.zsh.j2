@@ -1,0 +1,9 @@
+# Powerline (zsh)
+if (( $+commands[powerline-daemon] )); then
+  powerline-daemon -q
+fi
+if [[ -r /usr/share/powerline/bindings/zsh/powerline.zsh ]]; then
+  source /usr/share/powerline/bindings/zsh/powerline.zsh
+elif [[ -r "$HOME/.local/pipx/venvs/powerline-status"/lib/python3.*/site-packages/powerline/bindings/zsh/powerline.zsh ]]; then
+  source "$HOME/.local/pipx/venvs/powerline-status"/lib/python3.*/site-packages/powerline/bindings/zsh/powerline.zsh
+fi

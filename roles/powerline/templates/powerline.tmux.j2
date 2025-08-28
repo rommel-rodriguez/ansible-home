@@ -1,0 +1,6 @@
+# Powerline (tmux)
+run-shell 'powerline-daemon -q'
+if-shell '[ -r /usr/share/powerline/bindings/tmux/powerline.conf ]' \
+  'source-file /usr/share/powerline/bindings/tmux/powerline.conf' \
+  'if-shell "[ -r $HOME/.local/pipx/venvs/powerline-status/lib/python3.*/site-packages/powerline/bindings/tmux/powerline.conf ]" \
+     "source-file $HOME/.local/pipx/venvs/powerline-status/lib/python3.*/site-packages/powerline/bindings/tmux/powerline.conf" ""'
