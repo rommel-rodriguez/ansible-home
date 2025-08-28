@@ -25,49 +25,122 @@
   args: { executable: /bin/bash }
   changed_when: false
 
-- name: Install powerline-status with pipx for each user
-  when: powerline_install_method == 'pipx'
-  become: false
-  ansible.builtin.command: "pipx install powerline-status"
-  loop: "{{ powerline_users }}"
+# Ensure per-user dirs exist (good hygiene; avoids root-owned paths)
+- name: Ensure per-user local dirs exist
+  become: true
+  become_user: "{{ u }}"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "/home/{{ u }}/.local"
+    - "/home/{{ u }}/.local/bin"
+    - "/home/{{ u }}/.local/pipx"
   loop_control: { loop_var: u }
   vars:
-    ansible_become: false
-  environment:
-    PIPX_HOME: "/home/{{ u }}/.local/pipx"
-    PIPX_BIN_DIR: "/home/{{ u }}/.local/bin"
-    XDG_CACHE_HOME: "/home/{{ u }}/.cache"
+    u: "{{ item }}"
+  with_items: "{{ powerline_users }}"
+  # If you prefer a single loop, you can restructure; shown verbose for clarity.
+
+# Install powerline-status idempotently via pipx
+- name: Install powerline-status with pipx for each user
+  when: powerline_install_method == 'pipx'
+  become: true
   become_user: "{{ u }}"
+  community.general.pipx:
+    name: powerline-status
+    state: present
+    # the module handles idempotency; set homes so it doesn't use system defaults
+    pipx_home: "/home/{{ u }}/.local/pipx"
+    pipx_bin_dir: "/home/{{ u }}/.local/bin"
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }
 
 - name: Render shell bindings (bash)
   when: powerline_enable_bash
-  become: false
+  become: true
+  become_user: "{{ u }}"
   ansible.builtin.blockinfile:
     path: "/home/{{ u }}/.bashrc"
     marker: "# {mark} ANSIBLE POWERLINE"
     create: true
+    owner: "{{ u }}"
+    group: "{{ u }}"
+    mode: '0644'
     block: "{{ lookup('template', 'powerline.bash.j2') }}"
   loop: "{{ powerline_users }}"
   loop_control: { loop_var: u }
 
 - name: Render shell bindings (zsh)
   when: powerline_enable_zsh
-  become: false
+  become: true
+  become_user: "{{ u }}"
   ansible.builtin.blockinfile:
     path: "/home/{{ u }}/.zshrc"
     marker: "# {mark} ANSIBLE POWERLINE"
     create: true
+    owner: "{{ u }}"
+    group: "{{ u }}"
+    mode: '0644'
     block: "{{ lookup('template', 'powerline.zsh.j2') }}"
   loop: "{{ powerline_users }}"
   loop_control: { loop_var: u }
 
 - name: Render tmux config snippet
   when: powerline_enable_tmux
-  become: false
+  become: true
+  become_user: "{{ u }}"
   ansible.builtin.blockinfile:
     path: "/home/{{ u }}/.tmux.conf"
     marker: "# {mark} ANSIBLE POWERLINE"
     create: true
+    owner: "{{ u }}"
+    group: "{{ u }}"
+    mode: '0644'
     block: "{{ lookup('template', 'powerline.tmux.j2') }}"
   loop: "{{ powerline_users }}"
   loop_control: { loop_var: u }
+
+# Discover installed packages (modern core 2.18 way)
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Flag if Vim is present
+  ansible.builtin.set_fact:
+    powerline_vim_present: >-
+      {{ 'vim-gtk3' in ansible_facts.packages
+         or 'vim-nox' in ansible_facts.packages
+         or 'vim' in ansible_facts.packages }}
+
+# Optional hygiene: remove legacy rtp lines you may have added by hand
+- name: Remove legacy Powerline runtimepath lines from .vimrc
+  when: powerline_enable_vim and powerline_vim_present
+  become: true
+  become_user: "{{ u }}"
+  ansible.builtin.lineinfile:
+    path: "/home/{{ u }}/.vimrc"
+    state: absent
+    regexp: '(^|\s)set\s+rtp\+=.*powerline/bindings/vim.*'
+    backup: true
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }
+  tags: [powerline, vim]
+
+# Managed block: add/update our clean, auto-detecting config
+- name: Inject Powerline block into .vimrc
+  when: powerline_enable_vim and powerline_vim_present
+  become: true
+  become_user: "{{ u }}"
+  ansible.builtin.blockinfile:
+    path: "/home/{{ u }}/.vimrc"
+    marker: '" {mark} ANSIBLE POWERLINE (vim)'
+    create: true
+    owner: "{{ u }}"
+    group: "{{ u }}"
+    mode: '0644'
+    block: "{{ lookup('template', 'powerline.vimrc.j2') }}"
+  loop: "{{ powerline_users }}"
+  loop_control: { loop_var: u }
+  tags: [powerline, vim]

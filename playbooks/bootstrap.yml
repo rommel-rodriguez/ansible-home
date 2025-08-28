@@ -2,48 +2,62 @@
 - name: Bootstrap hosts for Ansible
   hosts: ubuntu_all
   gather_facts: false
+  serial: 1
+  become: true
+
   vars:
-    # Use a temporary connection user that already works (change if needed)
-    ansible_user: ubuntu
-  serial: 1  # safety first
+    # Path on the control node to the public key that will be authorized for the 'ansible' user
+    bootstrap_pubkey_path: "{{ lookup('env', 'HOME') ~ '/.ssh/id_ansible.pub' }}"
+    bootstrap_user: "ansible"
+    bootstrap_group: "sudo"   # Ubuntu derivatives
 
   pre_tasks:
-    - name: Ensure Python & sudo exist (raw)
-      raw: |
-        set -eu
+    - name: Check if python3 is present
+      ansible.builtin.raw: test -x /usr/bin/python3
+      register: _py3_check
+      changed_when: false
+      failed_when: _py3_check.rc not in [0, 1]
+      tags: [bootstrap]
+
+    - name: Install python3 (only if missing)
+      ansible.builtin.raw: |
         export DEBIAN_FRONTEND=noninteractive
-        if ! command -v python3 >/dev/null 2>&1; then
-          apt-get update -y
-          apt-get install -y python3
-        fi
-        if ! command -v sudo >/dev/null 2>&1; then
-          apt-get update -y
-          apt-get install -y sudo
-        fi
+        apt-get update -y
+        apt-get install -y python3
+      when: _py3_check.rc == 1
+      changed_when: true
+      tags: [bootstrap]
+
+    - name: Gather facts now that Python is available
+      ansible.builtin.setup:
+      tags: [bootstrap]
 
   tasks:
-    - name: Create 'ansible' admin user
-      become: true
+    - name: Ensure admin user exists
       ansible.builtin.user:
-        name: ansible
+        name: "{{ bootstrap_user }}"
         comment: Ansible Automation
-        groups: sudo
+        groups: "{{ bootstrap_group }}"
+        append: true
         shell: /bin/bash
-        create_home: yes
-
-    - name: Authorize the automation public key
-      become: true
-      ansible.builtin.authorized_key:
-        user: ansible
-        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ansible.pub') }}"
+        create_home: true
         state: present
+      tags: [bootstrap, user]
 
-    - name: Allow passwordless sudo for 'ansible' (NOPASSWD)
-      become: true
+    - name: Authorize automation public key for admin user
+      ansible.builtin.authorized_key:
+        user: "{{ bootstrap_user }}"
+        state: present
+        key: "{{ lookup('file', bootstrap_pubkey_path) }}"
+        manage_dir: true
+      tags: [bootstrap, ssh]
+
+    - name: Allow passwordless sudo for admin user (NOPASSWD)
       ansible.builtin.copy:
         dest: /etc/sudoers.d/99-ansible
-        content: "ansible ALL=(ALL) NOPASSWD:ALL\n"
+        content: "{{ bootstrap_user }} ALL=(ALL) NOPASSWD:ALL\n"
         owner: root
         group: root
         mode: '0440'
         validate: 'visudo -cf %s'
+      tags: [bootstrap, sudo]

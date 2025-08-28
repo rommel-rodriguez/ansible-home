@@ -3,3 +3,4 @@
 powerline_users: rommel
 powerline_install_method: pipx
 powerline_enable_tmux: true
+powerline_enable_vim: true

@@ -5,4 +5,5 @@ powerline_users: ['shadowthrone', 'koala']
 powerline_enable_bash: true
 powerline_enable_zsh: true
 powerline_enable_tmux: true
+powerline_enable_vim: true
 powerline_fonts_pkg: fonts-powerline

@@ -1,0 +1,21 @@
+" Powerline (Vim) — auto-detect system or pipx bindings
+if has('python3')
+  " Try system-wide (APT) binding first
+  if isdirectory('/usr/share/powerline/bindings/vim')
+    execute 'set rtp+=/usr/share/powerline/bindings/vim'
+  else
+    " Try per-user pipx venv (match python3.*)
+    let s:pl = glob('~/.local/pipx/venvs/powerline-status/lib/python3*/site-packages/powerline/bindings/vim', 1, 1)
+    if len(s:pl) > 0
+      execute 'set rtp+=' . s:pl[0]
+    endif
+    unlet s:pl
+  endif
+
+  " UI: always show status/tabline; use truecolor when available
+  set laststatus=2
+  set showtabline=2
+  if exists('&termguicolors')
+    set termguicolors
+  endif
+endif
