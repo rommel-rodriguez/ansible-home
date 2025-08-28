@@ -25,23 +25,19 @@
   args: { executable: /bin/bash }
   changed_when: false
 
-# Ensure per-user dirs exist (good hygiene; avoids root-owned paths)
 - name: Ensure per-user local dirs exist
   become: true
-  become_user: "{{ u }}"
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "/home/{{ item.0 }}/{{ item.1 }}"
     state: directory
-    mode: '0755'
-  loop:
-    - "/home/{{ u }}/.local"
-    - "/home/{{ u }}/.local/bin"
-    - "/home/{{ u }}/.local/pipx"
-  loop_control: { loop_var: u }
-  vars:
-    u: "{{ item }}"
-  with_items: "{{ powerline_users }}"
-  # If you prefer a single loop, you can restructure; shown verbose for clarity.
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
+    mode: '0700'
+  loop: "{{ powerline_users | product(powerline_user_dirs) | list }}"
+  loop_control:
+    label: "{{ item.0 }}/{{ item.1 }}"
+  tags: [powerline, pipx]
+
 
 # Install powerline-status idempotently via pipx
 - name: Install powerline-status with pipx for each user
@@ -52,8 +48,6 @@
     name: powerline-status
     state: present
     # the module handles idempotency; set homes so it doesn't use system defaults
-    pipx_home: "/home/{{ u }}/.local/pipx"
-    pipx_bin_dir: "/home/{{ u }}/.local/bin"
   loop: "{{ powerline_users }}"
   loop_control: { loop_var: u }
 

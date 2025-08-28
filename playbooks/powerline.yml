@@ -1,0 +1,8 @@
+# playbooks/powerline.yml
+---
+- name: Configure Powerline on control nodes
+  hosts: control
+  gather_facts: true
+  become: false
+  roles:
+    - powerline

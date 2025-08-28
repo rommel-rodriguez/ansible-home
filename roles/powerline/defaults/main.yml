@@ -7,3 +7,8 @@ powerline_enable_zsh: true
 powerline_enable_tmux: true
 powerline_enable_vim: true
 powerline_fonts_pkg: fonts-powerline
+powerline_user_dirs:
+  - .local
+  - .local/bin
+  - .local/pipx
+
