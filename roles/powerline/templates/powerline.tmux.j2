@@ -1,6 +1,11 @@
 # Powerline (tmux)
-run-shell 'powerline-daemon -q'
-if-shell '[ -r /usr/share/powerline/bindings/tmux/powerline.conf ]' \
-  'source-file /usr/share/powerline/bindings/tmux/powerline.conf' \
-  "if-shell '[ -r $HOME/.local/pipx/venvs/powerline-status/lib/python3.*/site-packages/powerline/bindings/tmux/powerline.conf ]' \\
-     'set-environment -g POWERLINE_CONFIG_COMMAND \"$HOME/.local/pipx/venvs/powerline-status/bin/powerline-config" \; set-environment -g POWERLINE_COMMAND \"$HOME/.local/pipx/venvs/powerline-status/bin/powerline" \; source-file $HOME/.local/pipx/venvs/powerline-status/lib/python3.*/site-packages/powerline/bindings/tmux/powerline.conf'"
+run-shell "powerline-daemon -q"
+
+if-shell "[ -r /usr/share/powerline/bindings/tmux/powerline.conf ]" \
+  "source-file /usr/share/powerline/bindings/tmux/powerline.conf" \
+  'run-shell "conf=$(echo $HOME/.local/pipx/venvs/powerline-status/lib/python3.*/site-packages/powerline/bindings/tmux/powerline.conf | head -n1); \
+              if [ -r \"$conf\" ]; then \
+                tmux set-environment -g POWERLINE_CONFIG_COMMAND $HOME/.local/pipx/venvs/powerline-status/bin/powerline-config; \
+                tmux set-environment -g POWERLINE_COMMAND $HOME/.local/pipx/venvs/powerline-status/bin/powerline; \
+                tmux source-file \"$conf\"; \
+              fi"'
