@@ -1,0 +1,4 @@
+ansible_user: ansible
+ansible_ssh_private_key_file: "~/.ssh/id_ansible"
+ansible_become: true
+# no ansible_become_password needed because NOPASSWD was set by bootstrap
