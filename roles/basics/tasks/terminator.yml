@@ -1,0 +1,78 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Ensure font installation directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ basics_terminator_font_install_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Create temporary directory for font archives
+  become: true
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: terminator-fonts
+  register: basics_terminator_font_tempdir
+
+- name: Download font archives
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ basics_terminator_font_tempdir.path }}/{{ item.url | basename }}"
+    mode: "0644"
+  loop: "{{ basics_terminator_font_archives }}"
+  register: basics_terminator_font_downloads
+  loop_control:
+    label: "{{ item.name }} ({{ item.variant }})"
+
+- name: Ensure font variant directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ basics_terminator_font_install_dir }}/{{ item.item.name | lower | regex_replace('[^a-z0-9]+', '-') }}/{{ item.item.variant }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ basics_terminator_font_downloads.results }}"
+  loop_control:
+    label: "{{ item.item.name }} ({{ item.item.variant }})"
+
+- name: Install downloaded fonts
+  become: true
+  ansible.builtin.unarchive:
+    src: "{{ item.dest }}"
+    dest: "{{ basics_terminator_font_install_dir }}/{{ item.item.name | lower | regex_replace('[^a-z0-9]+', '-') }}/{{ item.item.variant }}"
+    remote_src: true
+  loop: "{{ basics_terminator_font_downloads.results }}"
+  loop_control:
+    label: "{{ item.item.name }} ({{ item.item.variant }})"
+  register: basics_terminator_font_installations
+
+- name: Refresh font cache
+  become: true
+  ansible.builtin.command: fc-cache -f
+  when: basics_terminator_font_installations is changed
+
+- name: Remove temporary font directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ basics_terminator_font_tempdir.path }}"
+    state: absent
+  when: basics_terminator_font_tempdir.path is defined
+
+- name: Ensure Terminator configuration directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ basics_terminator_user_home }}/.config/terminator"
+    state: directory
+    owner: "{{ basics_terminator_user }}"
+    group: "{{ basics_terminator_group }}"
+    mode: "0700"
+
+- name: Deploy Terminator configuration
+  become: true
+  ansible.builtin.template:
+    src: terminator/config.j2
+    dest: "{{ basics_terminator_user_home }}/.config/terminator/config"
+    owner: "{{ basics_terminator_user }}"
+    group: "{{ basics_terminator_group }}"
+    mode: "0600"
+
