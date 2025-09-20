@@ -1,0 +1,41 @@
+#SPDX-License-Identifier: MIT-0
+[global_config]
+  default_profile = {{ basics_terminator_profile_name }}
+  suppress_multiple_term_dialog = True
+
+[keybindings]
+
+[profiles]
+  [[{{ basics_terminator_profile_name }}]]
+{% for key, value in basics_terminator_profile_settings | dictsort %}{% if value is boolean %}
+    {{ key }} = {{ value | ternary('True', 'False') }}
+{% else %}
+    {{ key }} = {{ value }}
+{% endif %}{% endfor %}
+  [[default]]
+{% for key, value in basics_terminator_profile_settings | dictsort %}{% if value is boolean %}
+    {{ key }} = {{ value | ternary('True', 'False') }}
+{% else %}
+    {{ key }} = {{ value }}
+{% endif %}{% endfor %}
+
+[layouts]
+  [[{{ basics_terminator_layout_name }}]]
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = {{ basics_terminator_profile_name }}
+    [[[window0]]]
+      type = Window
+      parent = ""
+  [[default]]
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = {{ basics_terminator_profile_name }}
+    [[[window0]]]
+      type = Window
+      parent = ""
+
+[plugins]
+

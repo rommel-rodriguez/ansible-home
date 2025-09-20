@@ -3,11 +3,11 @@
 - name: Install Basic applications
   become: true
   ansible.builtin.apt:
-    name:
-      - terminator
-      - p7zip-full
-      - redshift
-      - flameshot
+    name: "{{ basics_packages }}"
     state: present
     update_cache: true
-    
+
+- name: Configure Terminator defaults
+  ansible.builtin.import_tasks: terminator.yml
+  when: basics_manage_terminator | bool
+

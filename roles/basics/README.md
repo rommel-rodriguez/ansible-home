@@ -1,38 +1,54 @@
-Role Name
-=========
+Basics role
+===========
 
-A brief description of the role goes here.
+Installs common desktop tooling and configures the Terminator terminal emulator with a developer-focused profile and curated fonts.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+* Debian or Ubuntu based system with `apt`.
+* Internet access to download font archives from upstream projects and the Nerd Fonts project.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+| Variable | Default | Description |
+| --- | --- | --- |
+| `basics_packages` | `['terminator', 'p7zip-full', 'redshift', 'flameshot', 'fontconfig', 'unzip']` | Packages installed with `apt`. |
+| `basics_manage_terminator` | `true` | Toggle Terminator configuration and font installation. |
+| `basics_terminator_user` | `{{ ansible_user_id }}` | Account that owns Terminator configuration. |
+| `basics_terminator_group` | `{{ ansible_user_gid | default(ansible_user_id) }}` | Group assigned to Terminator configuration files. |
+| `basics_terminator_user_home` | `{{ ansible_env.HOME }}` | Base path for Terminator configuration files. |
+| `basics_terminator_font_install_dir` | `/usr/local/share/fonts` | Directory where downloaded fonts are installed. |
+| `basics_terminator_font_archives` | see defaults | Font archives (original and Nerd Font versions) that are downloaded and extracted. |
+| `basics_terminator_default_font` | `Hack Nerd Font Mono` | Preferred Terminator font family. |
+| `basics_terminator_default_font_size` | `12` | Default font size for the `dev` profile. |
+| `basics_terminator_profile_name` | `dev` | Name of the Terminator profile created by the role. |
+| `basics_terminator_layout_name` | `dev` | Name of the layout bound to the default profile. |
+| `basics_terminator_profile_settings` | see defaults | Key/value settings rendered inside the profile definition. |
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+This role has no dependencies on external roles.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+- hosts: workstation
+  roles:
+    - role: basics
+      vars:
+        basics_terminator_default_font_size: 14
+```
 
 License
 -------
 
-BSD
+MIT-0
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Maintained by the ansible-home project.

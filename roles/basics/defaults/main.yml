@@ -1,3 +1,63 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for basics
+basics_packages:
+  - terminator
+  - p7zip-full
+  - redshift
+  - flameshot
+  - fontconfig
+  - unzip
+
+basics_manage_terminator: true
+
+basics_terminator_user: "{{ ansible_user_id }}"
+basics_terminator_group: "{{ ansible_user_gid | default(ansible_user_id) }}"
+basics_terminator_user_home: "{{ ansible_env.HOME }}"
+
+basics_terminator_font_install_dir: /usr/local/share/fonts
+
+basics_terminator_font_archives:
+  - name: Hack
+    variant: original
+    url: https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip
+  - name: Hack
+    variant: nerd
+    url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Hack.zip
+  - name: JetBrains Mono
+    variant: original
+    url: https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip
+  - name: JetBrains Mono
+    variant: nerd
+    url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip
+  - name: Fira Code
+    variant: original
+    url: https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
+  - name: Fira Code
+    variant: nerd
+    url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip
+  - name: Cascadia Code
+    variant: original
+    url: https://github.com/microsoft/cascadia-code/releases/download/v2404.23/CascadiaCode-2404.23.zip
+  - name: Cascadia Code
+    variant: nerd
+    url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
+  - name: Source Code Pro
+    variant: original
+    url: https://github.com/adobe-fonts/source-code-pro/releases/download/2.042R-u/TTF-source-code-pro-2.042R-u.zip
+  - name: Source Code Pro
+    variant: nerd
+    url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/SourceCodePro.zip
+
+basics_terminator_default_font: "Hack Nerd Font Mono"
+basics_terminator_default_font_size: 12
+basics_terminator_profile_name: dev
+basics_terminator_layout_name: dev
+basics_terminator_profile_settings:
+  use_system_font: false
+  font: "{{ basics_terminator_default_font }} {{ basics_terminator_default_font_size }}"
+  background_color: "#1e1e1e"
+  foreground_color: "#d4d4d4"
+  cursor_color: "#ffcc00"
+  scrollbar_position: hidden
+
