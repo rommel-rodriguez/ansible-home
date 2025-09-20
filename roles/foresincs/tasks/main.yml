@@ -1,0 +1,16 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/foresincs
+- name: Install Digital Forensics Tools 
+  become: true 
+  ansible.builtin.apt:
+    name:
+      - forensics-all 
+      - forensics-all-gui
+      - forensics-colorize
+      - sleuthkit
+      - autopsy
+      - scalpel  # For system-independent file recovery
+    state: present
+    update_cache: true
+    
