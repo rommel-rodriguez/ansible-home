@@ -1,4 +1,4 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 - name: Ensure font installation directory exists
   become: true
@@ -14,7 +14,7 @@
     suffix: terminator-fonts
   register: basics_terminator_font_tempdir
 
-- name: Download font archives
+- name: Download font archives (retry each)
   become: true
   ansible.builtin.get_url:
     url: "{{ item.url }}"
@@ -44,12 +44,15 @@
   loop: "{{ basics_terminator_font_downloads.results }}"
   loop_control:
     label: "{{ item.item.name }} ({{ item.item.variant }})"
+  notify: Rebuild font cache
   register: basics_terminator_font_installations
 
-- name: Refresh font cache
-  become: true
-  ansible.builtin.command: fc-cache -f
-  when: basics_terminator_font_installations is changed
+# - name: Refresh font cache
+#   become: true
+#   ansible.builtin.command: fc-cache -f
+#   when: basics_terminator_font_installations is changed
+#   changed_when: true
+
 
 - name: Remove temporary font directory
   become: true
@@ -75,4 +78,3 @@
     owner: "{{ basics_terminator_user }}"
     group: "{{ basics_terminator_group }}"
     mode: "0600"
-

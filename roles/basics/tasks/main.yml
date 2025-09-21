@@ -10,4 +10,3 @@
 - name: Configure Terminator defaults
   ansible.builtin.import_tasks: terminator.yml
   when: basics_manage_terminator | bool
-
