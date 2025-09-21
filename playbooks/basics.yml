@@ -1,0 +1,11 @@
+# playbooks/powerline.yml
+---
+- name: Configure Powerline on control nodes
+  hosts:
+    - control
+    # - ubuntu_all
+    # - bioinfo
+  gather_facts: true
+  become: false
+  roles:
+    - basics
