@@ -44,7 +44,8 @@ basics_terminator_font_archives:
     url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip
   - name: Source Code Pro
     variant: original
-    url: https://github.com/adobe-fonts/source-code-pro/releases/download/2.042R-u/TTF-source-code-pro-2.042R-u.zip
+    # url: https://github.com/adobe-fonts/source-code-pro/releases/download/2.042R-u/TTF-source-code-pro-2.042R-u.zip
+    url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/SourceCodePro.zip
   - name: Source Code Pro
     variant: nerd
     url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/SourceCodePro.zip
