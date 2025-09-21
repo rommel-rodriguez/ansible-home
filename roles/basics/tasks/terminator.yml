@@ -20,10 +20,29 @@
     url: "{{ item.url }}"
     dest: "{{ basics_terminator_font_tempdir.path }}/{{ item.url | basename }}"
     mode: "0644"
-  loop: "{{ basics_terminator_font_archives }}"
+    timeout: 30
   register: basics_terminator_font_downloads
+  retries: 3
+  delay: 5
+  until: basics_terminator_font_downloads is succeeded
+  failed_when: false                # <- don’t fail the whole task on a 404
+  loop: "{{ basics_terminator_font_archives | default([], true) }}"
   loop_control:
     label: "{{ item.name }} ({{ item.variant }})"
+
+- name: Collect successful downloads
+  ansible.builtin.set_fact:
+    _font_ok: "{{ basics_terminator_font_downloads.results
+                  | selectattr('failed','undefined') | list }}"
+    _font_fail: "{{ basics_terminator_font_downloads.results
+                    | selectattr('failed','defined') | list }}"
+
+- name: Warn about failed downloads
+  ansible.builtin.debug:
+    msg: "Skipped {{ item.item.name }} ({{ item.item.variant }}): {{ item.msg | default(item.status_code | string) }}"
+  loop: "{{ _font_fail }}"
+  when: _font_fail | length > 0
+  
 
 - name: Ensure font variant directory exists
   become: true
@@ -31,9 +50,9 @@
     path: "{{ basics_terminator_font_install_dir }}/{{ item.item.name | lower | regex_replace('[^a-z0-9]+', '-') }}/{{ item.item.variant }}"
     state: directory
     mode: "0755"
-  loop: "{{ basics_terminator_font_downloads.results }}"
+  loop: "{{ _font_ok }}"
   loop_control:
-    label: "{{ item.item.name }} ({{ item.item.variant }})"
+    label: "{{ item.item.name }} ({{ item.item.variant  | default('default')}})"
 
 - name: Install downloaded fonts
   become: true
@@ -41,9 +60,9 @@
     src: "{{ item.dest }}"
     dest: "{{ basics_terminator_font_install_dir }}/{{ item.item.name | lower | regex_replace('[^a-z0-9]+', '-') }}/{{ item.item.variant }}"
     remote_src: true
-  loop: "{{ basics_terminator_font_downloads.results }}"
+  loop: "{{ _font_ok }}"
   loop_control:
-    label: "{{ item.item.name }} ({{ item.item.variant }})"
+    label: "{{ item.item.name }} ({{ item.item.variant  | default('default') }})"
   notify: Rebuild font cache
   register: basics_terminator_font_installations
 
