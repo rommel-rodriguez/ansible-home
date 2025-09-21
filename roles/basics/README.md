@@ -16,9 +16,7 @@ Role Variables
 | --- | --- | --- |
 | `basics_packages` | `['terminator', 'p7zip-full', 'redshift', 'flameshot', 'fontconfig', 'unzip']` | Packages installed with `apt`. |
 | `basics_manage_terminator` | `true` | Toggle Terminator configuration and font installation. |
-| `basics_terminator_user` | `{{ ansible_user_id }}` | Account that owns Terminator configuration. |
-| `basics_terminator_group` | `{{ ansible_user_gid | default(ansible_user_id) }}` | Group assigned to Terminator configuration files. |
-| `basics_terminator_user_home` | `{{ ansible_env.HOME }}` | Base path for Terminator configuration files. |
+| `basics_terminator_users` | `[{'name': '{{ ansible_user_id }}', 'group': '{{ ansible_user_gid | default(ansible_user_id) }}', 'home': '{{ ansible_env.HOME }}'}]` | List of accounts that receive Terminator configuration. Each entry may be a username string or a mapping with `name`, `group`, and `home`. |
 | `basics_terminator_font_install_dir` | `/usr/local/share/fonts` | Directory where downloaded fonts are installed. |
 | `basics_terminator_font_archives` | see defaults | Font archives (original and Nerd Font versions) that are downloaded and extracted. |
 | `basics_terminator_default_font` | `Hack Nerd Font Mono` | Preferred Terminator font family. |

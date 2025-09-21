@@ -11,9 +11,10 @@ basics_packages:
 
 basics_manage_terminator: true
 
-basics_terminator_user: "{{ ansible_user_id }}"
-basics_terminator_group: "{{ ansible_user_gid | default(ansible_user_id) }}"
-basics_terminator_user_home: "{{ ansible_env.HOME }}"
+basics_terminator_users:
+  - name: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid | default(ansible_user_id) }}"
+    home: "{{ ansible_env.HOME }}"
 
 basics_terminator_font_install_dir: /usr/local/share/fonts
 
