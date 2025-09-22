@@ -13,6 +13,8 @@ basics_manage_terminator: true
 
 basics_terminator_users:
   - "{{ ansible_user_id }}"
+  - 'shadowthrone'
+  - 'koala'
 
 basics_terminator_font_install_dir: /usr/local/share/fonts
 
