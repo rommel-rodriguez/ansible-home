@@ -30,18 +30,13 @@
   loop_control:
     label: "{{ item.name }} ({{ item.variant }})"
 
-- name: Collect successful downloads
-  ansible.builtin.set_fact:
-    _font_ok: "{{ basics_terminator_font_downloads.results
-                  | selectattr('failed','undefined') | list }}"
-    _font_fail: "{{ basics_terminator_font_downloads.results
-                    | selectattr('failed','defined') | list }}"
-
 - name: Warn about failed downloads
   ansible.builtin.debug:
-    msg: "Skipped {{ item.item.name }} ({{ item.item.variant }}): {{ item.msg | default(item.status_code | string) }}"
-  loop: "{{ _font_fail }}"
-  when: _font_fail | length > 0
+    msg: "Skipped {{ item.item.name }} ({{ item.item.variant | default('default') }}): {{ item.msg | default(item.status_code | string) }}"
+  loop: "{{ basics_terminator_font_downloads.results | default([], true) }}"
+  when: item.failed | default(false)
+  loop_control:
+    label: "{{ item.item.name }} ({{ item.item.variant | default('default') }})"
   
 
 - name: Ensure font variant directory exists
@@ -50,9 +45,12 @@
     path: "{{ basics_terminator_font_install_dir }}/{{ item.item.name | lower | regex_replace('[^a-z0-9]+', '-') }}/{{ item.item.variant }}"
     state: directory
     mode: "0755"
-  loop: "{{ _font_ok }}"
+  loop: "{{ basics_terminator_font_downloads.results | default([], true) }}"
   loop_control:
     label: "{{ item.item.name }} ({{ item.item.variant  | default('default')}})"
+  when:
+    - not item.failed | default(false)
+    - not item.skipped | default(false)
 
 - name: Install downloaded fonts
   become: true
@@ -60,11 +58,14 @@
     src: "{{ item.dest }}"
     dest: "{{ basics_terminator_font_install_dir }}/{{ item.item.name | lower | regex_replace('[^a-z0-9]+', '-') }}/{{ item.item.variant }}"
     remote_src: true
-  loop: "{{ _font_ok }}"
+  loop: "{{ basics_terminator_font_downloads.results | default([], true) }}"
   loop_control:
     label: "{{ item.item.name }} ({{ item.item.variant  | default('default') }})"
   notify: Rebuild font cache
   register: basics_terminator_font_installations
+  when:
+    - not item.failed | default(false)
+    - not item.skipped | default(false)
 
 # - name: Refresh font cache
 #   become: true
