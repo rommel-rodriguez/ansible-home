@@ -9,12 +9,16 @@
   [[{{ basics_terminator_profile_name }}]]
 {% for key, value in basics_terminator_profile_settings | dictsort %}{% if value is boolean %}
     {{ key }} = {{ value | ternary('True', 'False') }}
+{% elif value is string and '#' in value %}
+    {{ key }} = "{{ value }}"
 {% else %}
     {{ key }} = {{ value }}
 {% endif %}{% endfor %}
   [[default]]
 {% for key, value in basics_terminator_profile_settings | dictsort %}{% if value is boolean %}
     {{ key }} = {{ value | ternary('True', 'False') }}
+{% elif value is string and '#' in value %}
+    {{ key }} = "{{ value }}"
 {% else %}
     {{ key }} = {{ value }}
 {% endif %}{% endfor %}
