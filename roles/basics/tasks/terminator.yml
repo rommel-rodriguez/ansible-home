@@ -83,33 +83,25 @@
 - name: Ensure Terminator configuration directory exists
   become: true
   ansible.builtin.file:
-    path: "{{ terminator_user_home }}/.config/terminator"
+    path: "/home/{{ terminator_user }}/.config/terminator"
     state: directory
-    owner: "{{ terminator_user_name }}"
-    group: "{{ terminator_user_group }}"
+    owner: "{{ terminator_user }}"
+    group: "{{ terminator_user }}"
     mode: "0700"
   loop: "{{ basics_terminator_users }}"
   loop_control:
     loop_var: terminator_user
-    label: "{{ terminator_user_name }}"
-  vars:
-    terminator_user_name: "{{ terminator_user.name | default(terminator_user) }}"
-    terminator_user_group: "{{ terminator_user.group | default(terminator_user_name) }}"
-    terminator_user_home: "{{ terminator_user.home | default('/home/' ~ terminator_user_name) }}"
+    label: "{{ terminator_user }}"
 
 - name: Deploy Terminator configuration
   become: true
   ansible.builtin.template:
     src: terminator/config.j2
-    dest: "{{ terminator_user_home }}/.config/terminator/config"
-    owner: "{{ terminator_user_name }}"
-    group: "{{ terminator_user_group }}"
+    dest: "/home/{{ terminator_user }}/.config/terminator/config"
+    owner: "{{ terminator_user }}"
+    group: "{{ terminator_user }}"
     mode: "0600"
   loop: "{{ basics_terminator_users }}"
   loop_control:
     loop_var: terminator_user
-    label: "{{ terminator_user_name }}"
-  vars:
-    terminator_user_name: "{{ terminator_user.name | default(terminator_user) }}"
-    terminator_user_group: "{{ terminator_user.group | default(terminator_user_name) }}"
-    terminator_user_home: "{{ terminator_user.home | default('/home/' ~ terminator_user_name) }}"
+    label: "{{ terminator_user }}"
