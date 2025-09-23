@@ -51,15 +51,77 @@ basics_terminator_font_archives:
     variant: nerd
     url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/SourceCodePro.zip
 
-basics_terminator_default_font: "Hack Nerd Font Mono"
-basics_terminator_default_font_size: 12
-basics_terminator_profile_name: dev
-basics_terminator_layout_name: dev
-basics_terminator_profile_settings:
-  use_system_font: false
-  font: "{{ basics_terminator_default_font }} {{ basics_terminator_default_font_size }}"
-  background_color: "#1e1e1e"
-  foreground_color: "#d4d4d4"
-  cursor_color: "#ffcc00"
-  scrollbar_position: hidden
+basics_terminator_default_font_family: "FiraCode Nerd Font Propo"
+basics_terminator_default_font_variant: "Medium"
+basics_terminator_default_font_size: 14
+basics_terminator_default_profile_name: null
+basics_terminator_global_config_comments:
+  - "  # Dracula Globals"
+basics_terminator_global_config:
+  enabled_plugins:
+    - Logger
+    - LaunchpadBugURLHandler
+    - LaunchpadCodeURLHandler
+    - APTURLHandler
+    - TerminalShot
+  suppress_multiple_term_dialog: true
+  always_split_with_profile: true
+  title_transmit_fg_color: "#282a36"
+  title_transmit_bg_color: "#50fa7b"
+  title_receive_fg_color: "#282a36"
+  title_receive_bg_color: "#ff79c6"
+  title_inactive_fg_color: "#f8f8f2"
+  title_inactive_bg_color: "#44475a"
+  inactive_color_offset: 0.61
+  title_hide_sizetext: true
+basics_terminator_profiles:
+  default:
+    background_color: "#282a36"
+    background_image: null
+    font: "{{ basics_terminator_default_font_family }}{% if basics_terminator_default_font_variant %} {{ basics_terminator_default_font_variant }}{% endif %} {{ basics_terminator_default_font_size }}"
+    foreground_color: "#f8f8f2"
+    palette: "#262626:#e356a7:#42e66c:#e4f34a:#9b6bdf:#e64747:#75d7ec:#efa554:#7a7a7a:#ff79c6:#50fa7b:#f1fa8c:#bd93f9:#ff5555:#8be9fd:#ffb86c"
+    use_system_font: false
+  dev:
+    background_color: "#1e1e1e"
+    font: "{{ basics_terminator_default_font_family }} {{ basics_terminator_default_font_size }}"
+    foreground_color: "#d4d4d4"
+    scrollbar_position: hidden
+    use_system_font: false
+  dracula:
+    background_color: "#282a36"
+    background_image: null
+    font: "{{ basics_terminator_default_font_family }}{% if basics_terminator_default_font_variant %} {{ basics_terminator_default_font_variant }}{% endif %} {{ basics_terminator_default_font_size }}"
+    foreground_color: "#f8f8f2"
+    palette: "#262626:#e356a7:#42e66c:#e4f34a:#9b6bdf:#e64747:#75d7ec:#efa554:#7a7a7a:#ff79c6:#50fa7b:#f1fa8c:#bd93f9:#ff5555:#8be9fd:#ffb86c"
+    use_system_font: false
+  solarized-dark:
+    background_color: "#002b36"
+    foreground_color: "#eee8d5"
+    palette: "#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#586e75:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"
+  solarized-light:
+    background_color: "#eee8d5"
+    foreground_color: "#002b36"
+    palette: "#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#002b36:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"
+basics_terminator_layouts:
+  default:
+    children:
+      child1:
+        type: Terminal
+        parent: window0
+        profile: default
+    windows:
+      window0:
+        type: Window
+        parent: ""
+  dev:
+    children:
+      child1:
+        type: Terminal
+        parent: window0
+        profile: dev
+    windows:
+      window0:
+        type: Window
+        parent: ""
 

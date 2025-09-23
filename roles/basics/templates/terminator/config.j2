@@ -1,45 +1,69 @@
 #SPDX-License-Identifier: MIT-0
+{% macro terminator_value(value) -%}
+{%- if value is boolean -%}
+{{ value | ternary('True', 'False') }}
+{%- elif value is none -%}
+None
+{%- elif value is number -%}
+{{ value }}
+{%- elif value is string -%}
+{%- if '#' in value -%}
+"{{ value }}"
+{%- else -%}
+{{ value }}
+{%- endif -%}
+{%- elif value is sequence -%}
+{{ value | join(', ') }}
+{%- else -%}
+{{ value }}
+{%- endif -%}
+{%- endmacro %}
+
+{% set global_config = basics_terminator_global_config | default({}, true) %}
+{% set global_config_comments = basics_terminator_global_config_comments | default([], true) %}
+{% set default_profile = basics_terminator_default_profile_name | default('', true) %}
+{% set profiles = basics_terminator_profiles | default({}, true) %}
+{% set layouts = basics_terminator_layouts | default({}, true) %}
+
 [global_config]
-  default_profile = {{ basics_terminator_profile_name }}
-  suppress_multiple_term_dialog = True
+{% if default_profile %}
+  default_profile = {{ default_profile }}
+{% endif %}
+{% for comment in global_config_comments %}
+{{ comment }}
+{% endfor %}
+{% for key, value in global_config.items() %}
+  {{ key }} = {{ terminator_value(value) }}
+{% endfor %}
 
 [keybindings]
 
 [profiles]
-  [[{{ basics_terminator_profile_name }}]]
-{% for key, value in basics_terminator_profile_settings | dictsort %}{% if value is boolean %}
-    {{ key }} = {{ value | ternary('True', 'False') }}
-{% elif value is string and '#' in value %}
-    {{ key }} = "{{ value }}"
-{% else %}
-    {{ key }} = {{ value }}
-{% endif %}{% endfor %}
-  [[default]]
-{% for key, value in basics_terminator_profile_settings | dictsort %}{% if value is boolean %}
-    {{ key }} = {{ value | ternary('True', 'False') }}
-{% elif value is string and '#' in value %}
-    {{ key }} = "{{ value }}"
-{% else %}
-    {{ key }} = {{ value }}
-{% endif %}{% endfor %}
+{% for profile_name, profile_settings in profiles.items() %}
+  [[{{ profile_name }}]]
+{% for key, value in profile_settings.items() %}
+    {{ key }} = {{ terminator_value(value) }}
+{% endfor %}
+{% endfor %}
 
 [layouts]
-  [[{{ basics_terminator_layout_name }}]]
-    [[[child1]]]
-      type = Terminal
-      parent = window0
-      profile = {{ basics_terminator_profile_name }}
-    [[[window0]]]
-      type = Window
-      parent = ""
-  [[default]]
-    [[[child1]]]
-      type = Terminal
-      parent = window0
-      profile = {{ basics_terminator_profile_name }}
-    [[[window0]]]
-      type = Window
-      parent = ""
+{% for layout_name, layout_settings in layouts.items() %}
+  [[{{ layout_name }}]]
+{% set child_terminals = layout_settings.children | default({}, true) %}
+{% set windows = layout_settings.windows | default({}, true) %}
+{% for child_name, child_settings in child_terminals.items() %}
+    [[[{{ child_name }}]]]
+{% for key, value in child_settings.items() %}
+      {{ key }} = {{ terminator_value(value) }}
+{% endfor %}
+{% endfor %}
+{% for window_name, window_settings in windows.items() %}
+    [[[{{ window_name }}]]]
+{% for key, value in window_settings.items() %}
+      {{ key }} = {{ terminator_value(value) }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
 
 [plugins]
 
