@@ -19,11 +19,14 @@ Role Variables
 | `basics_terminator_users` | `['{{ ansible_user_id }}']` | List of usernames that receive Terminator configuration. Each account is assumed to have a matching primary group and home directory at `/home/<username>`. |
 | `basics_terminator_font_install_dir` | `/usr/local/share/fonts` | Directory where downloaded fonts are installed. |
 | `basics_terminator_font_archives` | see defaults | Font archives (original and Nerd Font versions) that are downloaded and extracted. |
-| `basics_terminator_default_font` | `Hack Nerd Font Mono` | Preferred Terminator font family. |
-| `basics_terminator_default_font_size` | `12` | Default font size for the `dev` profile. |
-| `basics_terminator_profile_name` | `dev` | Name of the Terminator profile created by the role. |
-| `basics_terminator_layout_name` | `dev` | Name of the layout bound to the default profile. |
-| `basics_terminator_profile_settings` | see defaults | Key/value settings rendered inside the profile definition. |
+| `basics_terminator_default_font_family` | `FiraCode Nerd Font Propo` | Base font family applied to the default and Dracula profiles. |
+| `basics_terminator_default_font_variant` | `Medium` | Optional weight/variant appended to the default profile font string. Use `null` to omit. |
+| `basics_terminator_default_font_size` | `14` | Font size applied when composing profile font declarations. |
+| `basics_terminator_default_profile_name` | `null` | When set, renders `default_profile` inside the global Terminator configuration. |
+| `basics_terminator_global_config_comments` | `['  # Dracula Globals']` | Comment lines inserted after the optional `default_profile` declaration. |
+| `basics_terminator_global_config` | see defaults | Key/value pairs rendered in the `[global_config]` section. |
+| `basics_terminator_profiles` | see defaults | Map of profile names to their key/value settings. |
+| `basics_terminator_layouts` | see defaults | Map of layout names to child terminal and window definitions. |
 
 Dependencies
 ------------
@@ -38,7 +41,9 @@ Example Playbook
   roles:
     - role: basics
       vars:
-        basics_terminator_default_font_size: 14
+        basics_terminator_default_font_family: "JetBrainsMono Nerd Font"
+        basics_terminator_default_font_variant: null
+        basics_terminator_default_font_size: 13
 ```
 
 License
