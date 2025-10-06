@@ -2,6 +2,9 @@
 ---
 # defaults file for basics
 basics_packages:
+  - git
+  - git-secrets  # For post-commit hooks, prevents leaks of secrets
+  - gitleaks  # For post-commit hooks, similar to git-secrets, more features 
   - terminator
   - p7zip-full
   - redshift
