@@ -3,6 +3,7 @@
 - name: Configure Powerline on control nodes
   hosts:
     - control
+    - ubuntu_all
     # - ubuntu_all
     # - bioinfo
   gather_facts: true
