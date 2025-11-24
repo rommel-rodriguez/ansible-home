@@ -1,6 +1,10 @@
 # Managed by Ansible (tmux role)
 set -g mode-keys {{ tmux_mode_keys }}
 
+{% if tmux_enable_mouse %}
+set -g mouse on
+{% endif %}
+
 {% if tmux_manage_vi_copy_bindings %}
 # --- Fix selection keys to feel like Vim ---
 unbind -T copy-mode-vi v

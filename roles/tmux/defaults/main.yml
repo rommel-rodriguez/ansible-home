@@ -10,4 +10,5 @@ tmux_users:
 
 tmux_mode_keys: vi
 tmux_manage_vi_copy_bindings: true
+tmux_enable_mouse: false
 tmux_extra_config: ""
