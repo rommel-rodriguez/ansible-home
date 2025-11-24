@@ -1,0 +1,30 @@
+# Managed by Ansible (tmux role)
+set -g mode-keys {{ tmux_mode_keys }}
+
+{% if tmux_manage_vi_copy_bindings %}
+# --- Fix selection keys to feel like Vim ---
+unbind -T copy-mode-vi v
+bind   -T copy-mode-vi v      send-keys -X begin-selection   # start (visual-char)
+
+bind   -T copy-mode-vi V      send-keys -X select-line       # visual-line
+
+# keep rectangle on Ctrl+v (optional)
+bind   -T copy-mode-vi C-v    send-keys -X rectangle-toggle  # visual-block
+
+# Yank and exit copy-mode (so selection doesn’t keep growing)
+unbind -T copy-mode-vi y
+bind   -T copy-mode-vi y      send-keys -X copy-selection-and-cancel
+bind   -T copy-mode-vi Enter  send-keys -X copy-selection-and-cancel
+
+# Paste (make explicit; default is usually this)
+bind ] paste-buffer
+
+# Optional: quick cancel like Vim’s <Esc>
+bind   -T copy-mode-vi Escape send-keys -X cancel
+{% endif %}
+
+{% if tmux_extra_config | trim %}
+{{ tmux_extra_config | trim }}
+{% endif %}
+
+# Powerline integration is handled separately by the powerline role.

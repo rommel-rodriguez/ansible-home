@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults for tmux base role
+tmux_package: tmux
+
+tmux_users:
+  - "{{ ansible_user_id | default('shadowthrone') }}"
+  - shadowthrone
+  - koala
+
+tmux_mode_keys: vi
+tmux_manage_vi_copy_bindings: true
+tmux_extra_config: ""

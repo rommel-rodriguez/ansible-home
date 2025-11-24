@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: MIT-0
+---
+- name: Ensure tmux is installed
+  become: true
+  ansible.builtin.apt:
+    name: "{{ tmux_package }}"
+    state: present
+    update_cache: true
+
+- name: Manage base tmux configuration
+  become: true
+  become_user: "{{ tmux_user }}"
+  ansible.builtin.blockinfile:
+    path: "/home/{{ tmux_user }}/.tmux.conf"
+    marker: "# {mark} ANSIBLE TMUX BASE"
+    create: true
+    owner: "{{ tmux_user }}"
+    group: "{{ tmux_user }}"
+    mode: "0644"
+    insertafter: BOF
+    block: "{{ lookup('template', 'tmux.conf.j2') }}"
+  loop: "{{ tmux_users }}"
+  loop_control:
+    loop_var: tmux_user
+    label: "{{ tmux_user }}"
