@@ -28,7 +28,7 @@
       tags: [bootstrap]
 
   tasks:
-    - name: Ensure OpenSSH capability {{ item }} is installed
+    - name: Ensure OpenSSH capability installed: {{ item }}
       ansible.windows.win_shell: |
         $capName = '{{ item }}'
         $capability = Get-WindowsCapability -Online -Name $capName -ErrorAction Stop
